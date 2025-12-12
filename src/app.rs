@@ -64,11 +64,18 @@ pub fn run(args: Cli) -> Result<()> {
             .iter()
             .map(|candidate| presentation::candidate_line(candidate.pr, candidate.score))
             .collect();
-        Select::with_theme(&ColorfulTheme::default())
+        match Select::with_theme(&ColorfulTheme::default())
             .with_prompt("Pick a PR to copy")
             .items(&items)
             .default(0)
-            .interact()?
+            .interact_opt()?
+        {
+            Some(idx) => idx,
+            None => {
+                eprintln!("Selection cancelled");
+                return Ok(());
+            }
+        }
     } else {
         0
     };
