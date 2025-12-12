@@ -14,7 +14,7 @@ pub struct Cli {
     pub query_positional: Option<String>,
 
     /// How many ranked candidates to show before selection
-    #[arg(short = 'n', long, default_value_t = 3, value_parser = clap::value_parser!(usize))]
+    #[arg(short = 'n', long, default_value_t = 8, value_parser = clap::value_parser!(usize))]
     pub results: usize,
 
     /// How many merge commits to scan from HEAD backwards

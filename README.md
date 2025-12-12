@@ -26,7 +26,7 @@ You will see the top three matches; use the arrow keys or number keys to pick on
 Useful Flags
 ------------
 - `QUERY` positional argument or `--query TEXT` free-form description (leave empty to be prompted)
-- `--results N` number of ranked candidates to show (1-10, default 3)
+- `--results N` number of ranked candidates to show (1-10, default 8)
 - `--max-merges N` how many recent merge commits to scan (10-5000, default 400)
 - `--max-age-days N` only consider merges from the last N days (default 31, pass 0 to disable)
 - `--non-interactive` print the ranked list without prompting (great for scripts)
