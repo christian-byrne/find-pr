@@ -1,3 +1,4 @@
+use chrono::Duration;
 use clap::Parser;
 use dialoguer::Input;
 
@@ -19,6 +20,10 @@ pub struct Cli {
     /// Automatically pick a specific 1-based index (used for testing)
     #[arg(long, hide = true)]
     pub auto_select: Option<usize>,
+
+    /// Only consider PRs merged in the last N days (0 to disable)
+    #[arg(long, default_value_t = 31, value_parser = clap::value_parser!(u32))]
+    pub max_age_days: u32,
 
     /// Skip clipboard writes (useful in headless environments)
     #[arg(long)]
@@ -53,6 +58,14 @@ impl Cli {
 
     pub fn bounded_merges(&self) -> usize {
         self.max_merges.clamp(10, 5000)
+    }
+
+    pub fn max_age_duration(&self) -> Option<Duration> {
+        if self.max_age_days == 0 {
+            None
+        } else {
+            Some(Duration::days(self.max_age_days as i64))
+        }
     }
 
     pub fn should_select(&self) -> bool {

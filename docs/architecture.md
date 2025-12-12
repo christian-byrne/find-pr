@@ -3,8 +3,8 @@ Architecture Snapshot
 
 Flow
 ----
-1. `cli` parses flags and prompts for a query when needed.
-2. `app` wires everything together: opens the repo, asks `GitService` for merge commits, hands them to `SearchEngine`, then delegates to the selector / clipboard pipeline.
+1. `cli` parses flags (including the `--max-age-days` window) and prompts for a query when needed.
+2. `app` wires everything together: opens the repo, asks `GitService` for merge commits, trims anything older than the requested window, hands the rest to `SearchEngine`, then delegates to the selector / clipboard pipeline.
 3. `GitService` shells out to `git` for `rev-list`, `log`, `diff`, and config queries, stitching the results into `PullRequestInfo` structs.
 4. `SearchEngine` tokenizes the query, combines fuzzy matching with substring and recency bonuses, and returns sorted candidates.
 5. `presentation` builds both the compact list rows and the detailed payload, which `clipboard` optionally copies via the first available system tool.

@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Context, Result};
+use chrono::Utc;
 use dialoguer::{theme::ColorfulTheme, Select};
 
 use crate::{
@@ -9,11 +10,22 @@ use crate::{
 
 pub fn run(args: Cli) -> Result<()> {
     let repo = GitService::open(".").context("failed to open git repository")?;
-    let merges = repo
+    let mut merges = repo
         .recent_pr_merges(args.bounded_merges())
         .context("unable to scan merge commits")?;
     if merges.is_empty() {
         return Err(anyhow!("no merge commits found"));
+    }
+
+    if let Some(window) = args.max_age_duration() {
+        let cutoff = Utc::now() - window;
+        merges.retain(|pr| pr.committed_at >= cutoff);
+        if merges.is_empty() {
+            return Err(anyhow!(
+                "no merge commits found within the last {} days (adjust --max-age-days)",
+                args.max_age_days
+            ));
+        }
     }
 
     let engine = SearchEngine::new();
