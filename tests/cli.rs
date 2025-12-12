@@ -101,6 +101,30 @@ impl RepoFixture {
             &date_env,
         );
     }
+
+    fn create_squash_pr(
+        &self,
+        number: u32,
+        branch: &str,
+        file: &str,
+        contents: &str,
+        iso_date: &str,
+    ) {
+        let date_env = [
+            ("GIT_AUTHOR_DATE", iso_date),
+            ("GIT_COMMITTER_DATE", iso_date),
+        ];
+        self.run_git(&["checkout", "-b", branch]);
+        self.write_file(file, contents);
+        self.run_git(&["add", "."]);
+        self.run_git_env(&["commit", "-m", &format!("feat: {branch}")], &date_env);
+        self.run_git(&["checkout", "main"]);
+        self.run_git(&["merge", "--squash", branch]);
+        self.run_git_env(
+            &["commit", "-m", &format!("{} (#{})", branch, number)],
+            &date_env,
+        );
+    }
 }
 
 #[test]
@@ -217,4 +241,38 @@ fn filters_out_old_merges_by_default() {
         .success()
         .stdout(contains("new-credits"))
         .stdout(contains("legacy-credits").not());
+}
+
+#[test]
+fn finds_squash_style_prs() {
+    let repo = RepoFixture::new();
+    repo.create_squash_pr(
+        55,
+        "feature/subscription-panel",
+        "ui/subscription.tsx",
+        "fn subscription() {}",
+        "2025-11-20T00:00:00Z",
+    );
+    repo.create_squash_pr(
+        56,
+        "feature/credits-refresh",
+        "ui/credits.tsx",
+        "fn credits() {}",
+        "2025-11-25T00:00:00Z",
+    );
+
+    #[allow(deprecated)]
+    let mut cmd = Command::cargo_bin("find-pr-semantic-search").unwrap();
+    cmd.current_dir(repo.path()).args([
+        "--query",
+        "subscription",
+        "--auto-select",
+        "1",
+        "--no-clipboard",
+    ]);
+
+    cmd.assert()
+        .success()
+        .stdout(contains("subscription-panel"))
+        .stdout(contains("ui/subscription.tsx"));
 }

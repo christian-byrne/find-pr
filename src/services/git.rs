@@ -29,18 +29,13 @@ impl GitService {
     }
 
     pub fn recent_pr_merges(&self, max_items: usize) -> Result<Vec<PullRequestInfo>> {
-        let max_arg = max_items.to_string();
+        let scan_target = max_items.saturating_mul(6).max(max_items);
+        let max_arg = scan_target.to_string();
         let revs = run_git(
             &self.root,
-            [
-                "rev-list",
-                "--merges",
-                "--max-count",
-                max_arg.as_str(),
-                "HEAD",
-            ],
+            ["rev-list", "--max-count", max_arg.as_str(), "HEAD"],
         )
-        .context("unable to walk merge history")?;
+        .context("unable to walk commit history")?;
         let mut prs = Vec::new();
         for line in revs.lines() {
             let commit_id = line.trim();
@@ -48,7 +43,12 @@ impl GitService {
                 continue;
             }
             let pr = self.commit_info(commit_id)?;
-            prs.push(pr);
+            if looks_like_pr(&pr.title, pr.pr_number) {
+                prs.push(pr);
+            }
+            if prs.len() >= max_items {
+                break;
+            }
         }
         Ok(prs)
     }
@@ -209,4 +209,13 @@ fn parse_source_branch(message: &str) -> Option<String> {
             .unwrap_or(m.as_str())
             .to_string()
     })
+}
+
+fn looks_like_pr(title: &str, pr_number: Option<u64>) -> bool {
+    if pr_number.is_some() {
+        return true;
+    }
+
+    let lower = title.to_ascii_lowercase();
+    lower.contains("pull request") || lower.starts_with("merge ")
 }

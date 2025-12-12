@@ -5,7 +5,7 @@ Fast Rust CLI for ranking and previewing recently merged pull requests in the gi
 
 Features
 --------
-- walks merge commits locally via `git` (no network round-trips) and caches nothing
+- walks PR-like commits (merge or squash) locally via `git` (no network round-trips) and caches nothing
 - hybrid fuzzy/sub-string scoring across authors, branch names, commit titles, file paths, and PR numbers
 - recency boosting so the freshest matches surface first even with thin queries
 - interactive picker (default) plus automation flags for scripting and tests

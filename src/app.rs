@@ -14,7 +14,7 @@ pub fn run(args: Cli) -> Result<()> {
         .recent_pr_merges(args.bounded_merges())
         .context("unable to scan merge commits")?;
     if merges.is_empty() {
-        return Err(anyhow!("no merge commits found"));
+        return Err(anyhow!("no pull-request commits found"));
     }
 
     if let Some(window) = args.max_age_duration() {
