@@ -145,13 +145,8 @@ fn finds_pr_by_branch_name() {
 
     #[allow(deprecated)]
     let mut cmd = Command::cargo_bin("find-pr-semantic-search").unwrap();
-    cmd.current_dir(repo.path()).args([
-        "--query",
-        "inventory",
-        "--auto-select",
-        "1",
-        "--no-clipboard",
-    ]);
+    cmd.current_dir(repo.path())
+        .args(["inventory", "--auto-select", "1", "--no-clipboard"]);
     cmd.assert()
         .success()
         .stdout(contains("inventory-sync"))

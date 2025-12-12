@@ -6,8 +6,12 @@ use dialoguer::Input;
 #[command(about = "Semantic finder for recent pull requests", version)]
 pub struct Cli {
     /// Free-form query describing the PR (author, title, files, etc.)
-    #[arg(short, long)]
+    #[arg(short, long, value_name = "QUERY")]
     pub query: Option<String>,
+
+    /// Positional query, equivalent to --query
+    #[arg(index = 1, value_name = "QUERY")]
+    pub query_positional: Option<String>,
 
     /// How many ranked candidates to show before selection
     #[arg(short = 'n', long, default_value_t = 3, value_parser = clap::value_parser!(usize))]
@@ -40,6 +44,12 @@ impl Cli {
             .as_ref()
             .map(|s| s.trim().to_string())
             .filter(|s| !s.is_empty())
+            .or_else(|| {
+                self.query_positional
+                    .as_ref()
+                    .map(|s| s.trim().to_string())
+                    .filter(|s| !s.is_empty())
+            })
             .unwrap_or_else(|| {
                 if self.non_interactive {
                     String::new()
