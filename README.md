@@ -1,3 +1,13 @@
+# ⛔ DEPRECATED
+
+> **This repository has been archived and absorbed into the [ticket-to-pr-pipeline](https://github.com/christian-byrne/ticket-to-pr-pipeline) monorepo.**
+>
+> **New location:** [`tools/find-pr/`](https://github.com/christian-byrne/ticket-to-pr-pipeline/tree/main/tools/find-pr)
+>
+> This repo will receive no further updates. All new development happens in the monorepo.
+
+---
+
 find-pr-semantic-search
 =======================
 
